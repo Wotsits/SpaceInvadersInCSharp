@@ -14,8 +14,10 @@ namespace Assignment1
 {
     public partial class Form1 : Form
     {
-        
+
         #region Intial Setup
+
+        #region Global Variable Setup
 
         //global to the form class.
         PictureBox[,] aliens = new PictureBox[4, 4];
@@ -28,6 +30,13 @@ namespace Assignment1
         int bulletsShotOutOfSky = 0;
         Random r = new Random();
         List<PictureBox> alienBullets = new List<PictureBox>();
+        
+        //Declare alien sprites at the top of the program so that they can be loaded once only.
+        Image[,] alienSprites = new Image[4, 2];
+
+        #endregion
+
+        #region Config
 
         //-----------------
         //settings
@@ -38,14 +47,15 @@ namespace Assignment1
         int defenseBlockWidth = 200;
         //-----------------
 
-        //Declare alien sprites at the top of the program so that they can be loaded once only.
-        Image[,] alienSprites = new Image[4, 2];
+        #endregion
 
+        #region Game Load - Flow
         public Form1()
         {
             InitializeComponent();
         }
 
+        //Game load flow
         private void Game_Load(object sender, EventArgs e)
         {
             PopulateSpriteArray();
@@ -54,6 +64,11 @@ namespace Assignment1
             DrawPlayer();
         }
 
+        #endregion
+
+        #region Game Load - Helpers
+
+        //Helper that populates the sprite array.
         private void PopulateSpriteArray()
         {
             //populate the image sprites array
@@ -66,10 +81,8 @@ namespace Assignment1
 
             }
         }
-
-        //---------------------
-        //Draw sprites at load
-
+        
+        //Helper that draws sprites at load
         private void DrawAliens()
         {
             //Draw grid of aliens
@@ -89,6 +102,7 @@ namespace Assignment1
             }
         }
 
+        //Helper that draws defence blocks on load.
         private void DrawDefenseBlocks()
         {
             
@@ -103,6 +117,8 @@ namespace Assignment1
             }
         }
 
+        //Helper that draws player on load
+
         private void DrawPlayer()
         {
             player.Name = "player";
@@ -113,7 +129,7 @@ namespace Assignment1
             this.Controls.Add(this.player);
         }
 
-        //----------------------
+        #endregion
 
         #endregion
 
