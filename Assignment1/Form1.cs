@@ -14,6 +14,9 @@ namespace Assignment1
 {
     public partial class Form1 : Form
     {
+        
+        #region Intial Setup
+
         //global to the form class.
         PictureBox[,] aliens = new PictureBox[4, 4];
         PictureBox[] defenseBlocks = new PictureBox[4];
@@ -112,6 +115,10 @@ namespace Assignment1
 
         //----------------------
 
+        #endregion
+
+        #region Timer Handlers
+
         private void alienMoveTimer_Tick(object sender, EventArgs e)
         {
             if (directionOfAlienMove == "R")
@@ -145,52 +152,6 @@ namespace Assignment1
             }
         }
 
-        //handle player fire action.
-        public void Fire()
-        {
-            if (!bulletTimer.Enabled)
-            {
-                //set start position of bullet.
-                bullet.Left = (player.Left + player.Width / 2) - bullet.Width / 2;
-                bullet.Top = player.Top;
-                bullet.Visible = true;
-                bulletTimer.Enabled = true;
-                bulletsFired++;
-            }
-        }
-
-        //handles arrow key commands.
-        protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
-        {
-            //capture left arrow key or A
-            if ((keyData == Keys.Left) || (keyData == Keys.A))
-            {
-                player.Left = player.Left - 25;
-                return true;
-            }
-            //capture right arrow key or D
-            if ((keyData == Keys.Right) || (keyData == Keys.D))
-            {
-                player.Left = player.Left + 25;
-                return true;
-            }
-            //capture right arrow key or D
-            if (keyData == Keys.Space)
-            {
-                Fire();
-                return true;
-            }
-            return base.ProcessCmdKey(ref msg, keyData);
-        }
-       
-        
-        //a helper to reset the timer and the bullet (hides it as it can't do any damage up there anyway)
-        public void resetPlayerBullet()
-        {
-            bulletTimer.Enabled = false;
-            bullet.Visible = false;
-        }
-
         public void bulletTimer_Tick(object sender, EventArgs e)
         {
             //--------------
@@ -207,9 +168,9 @@ namespace Assignment1
                 bullet.Top = bullet.Top - 10;
                 //... and check whether the bullet is in contact with any of the aliens.
                 bool contact = false;
-                
+
                 for (int x = 0; x < (aliens.GetLength(0)); x++)
-                { 
+                {
                     if (!contact)
                     {
                         for (int y = 0; y < (aliens.GetLength(1)); y++)
@@ -219,7 +180,7 @@ namespace Assignment1
 
                             if (alien.Visible)
                             {
-                               
+
                                 //if the bullet and alien collide...
                                 if (twoThingsImpacted(bullet, alien))
                                 {
@@ -258,9 +219,9 @@ namespace Assignment1
                 }
 
                 //... or any of the defense blocks
-                for(int i=0; i<defenseBlocks.Count(); i++)
+                for (int i = 0; i < defenseBlocks.Count(); i++)
                 {
-                    if(twoThingsImpacted(bullet, defenseBlocks[i]))
+                    if (twoThingsImpacted(bullet, defenseBlocks[i]))
                     {
                         if (defenseBlocks[i].Width > 10)
                         {
@@ -274,41 +235,6 @@ namespace Assignment1
                     }
                 }
             }
-
-            
-        }
-
-        // a helper which checks whether two pictureBoxes are in contact with one another
-        private bool twoThingsImpacted (PictureBox firstThing, PictureBox secondThing)
-        {
-            
-            //-----------------
-            // for readability
-            int firstTop = firstThing.Top;
-            int firstBottom = firstThing.Bottom;
-            int firstLeft = firstThing.Left;
-            int firstRight = firstThing.Right;
-
-            int secondTop = secondThing.Top;
-            int secondBottom = secondThing.Bottom;
-            int secondLeft = secondThing.Left;
-            int secondRight = secondThing.Right;
-            //-----------------
-
-            //is the firstThing horizontally aligned with secondThing?
-            bool horizontallyAligned = (firstLeft >= secondLeft && firstLeft <= secondRight) || (firstRight >= secondLeft && firstRight <= secondLeft);
-
-            //initially set to false.
-            bool verticallyAligned = false;
-
-            //efficiency - only check for vert alignment if horiz alignment is true
-            if (horizontallyAligned)
-            {
-                //is the firstThing vertically aligned with secondThing? 
-                verticallyAligned = ((firstTop >= secondTop && firstTop <= secondBottom) || (firstBottom <= secondBottom && firstBottom >= secondTop));
-            }
-
-            return horizontallyAligned && verticallyAligned;
         }
 
         private void alientBulletMoveTimer_Tick(object sender, EventArgs e)
@@ -331,7 +257,7 @@ namespace Assignment1
                 }
 
                 //check if they are in contact with the player
-                if (twoThingsImpacted(alienBullets[i], player)) 
+                if (twoThingsImpacted(alienBullets[i], player))
                 {
                     //End Game
                     this.BackColor = Color.Red;
@@ -360,7 +286,7 @@ namespace Assignment1
                             defenseBlocks[j].Width = defenseBlocks[j].Width - 10;
                             defenseBlocks[j].Left = defenseBlocks[j].Left + 5;
                             bulletsToRemove.Add(i);
-                        }  
+                        }
                     }
                 }
 
@@ -402,13 +328,14 @@ namespace Assignment1
             //if no aliens are found in the selected column,  random column is selected again and the check completed
 
             int alienLowestRow = -1;
-            while (alienLowestRow == -1) {
+            while (alienLowestRow == -1)
+            {
                 //randomly generate the firing alien
                 int firingAlienColumn = r.Next(0, this.aliens.GetLength(0));
 
                 //check that there are aliens in that column
                 alienLowestRow = checkAlienInColumn(this.aliens, firingAlienColumn);
-                
+
 
                 if (alienLowestRow != -1)
                 {
@@ -416,34 +343,6 @@ namespace Assignment1
                 }
             }
         }
-
-        //a helper which checks whether a column contains an alien.  If an alien is detected, the func returns
-        //the position of that alien.  If no alien is in the column, it returns -1.
-        //Full details in alienFireTimer_Tick.
-        private int checkAlienInColumn(PictureBox[,] array, int firingColumn)
-        {
-            for (int i = array.GetLength(0)-1; i >= 0; i--)
-            {
-                if (array[firingColumn, i].Visible)
-                {
-                    return i;
-                }
-            }
-            return -1;
-        }
-
-        private void alienFire(int column, int row)
-        {
-            PictureBox alienBullet = new System.Windows.Forms.PictureBox();
-            alienBullet.BackColor = Color.White;
-            alienBullet.Top = this.aliens[column, row].Top;
-            alienBullet.Left = this.aliens[column, row].Left + (this.aliens[column, row].Width / 2);
-            alienBullet.Width = 10;
-            alienBullet.Height = 10;
-            alienBullets.Add(alienBullet);
-            this.Controls.Add(alienBullet);
-        }
-
 
         //ups the intensity of the game every x seconds
         private void intensityTimer_Tick(object sender, EventArgs e)
@@ -464,5 +363,129 @@ namespace Assignment1
                 alienMoveAmt += 4;
             }
         }
+
+        #endregion
+
+        #region Command Key Handling
+
+        //handles arrow key commands.
+        protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
+        {
+            //capture left arrow key or A
+            if ((keyData == Keys.Left) || (keyData == Keys.A))
+            {
+                player.Left = player.Left - 25;
+                return true;
+            }
+            //capture right arrow key or D
+            if ((keyData == Keys.Right) || (keyData == Keys.D))
+            {
+                player.Left = player.Left + 25;
+                return true;
+            }
+            //capture right arrow key or D
+            if (keyData == Keys.Space)
+            {
+                fire();
+                return true;
+            }
+            return base.ProcessCmdKey(ref msg, keyData);
+        }
+
+        #endregion
+
+        #region Helpers
+
+        //a helper to reset the timer and the bullet (hides it as it can't do any damage up there anyway)
+        public void resetPlayerBullet()
+        {
+            bulletTimer.Enabled = false;
+            bullet.Visible = false;
+        }
+
+
+
+        // a helper which checks whether two pictureBoxes are in contact with one another
+        private bool twoThingsImpacted(PictureBox firstThing, PictureBox secondThing)
+        {
+
+            //-----------------
+            // for readability
+            int firstTop = firstThing.Top;
+            int firstBottom = firstThing.Bottom;
+            int firstLeft = firstThing.Left;
+            int firstRight = firstThing.Right;
+
+            int secondTop = secondThing.Top;
+            int secondBottom = secondThing.Bottom;
+            int secondLeft = secondThing.Left;
+            int secondRight = secondThing.Right;
+            //-----------------
+
+            //is the firstThing horizontally aligned with secondThing?
+            bool horizontallyAligned = (firstLeft >= secondLeft && firstLeft <= secondRight) || (firstRight >= secondLeft && firstRight <= secondLeft);
+
+            //initially set to false.
+            bool verticallyAligned = false;
+
+            //efficiency - only check for vert alignment if horiz alignment is true
+            if (horizontallyAligned)
+            {
+                //is the firstThing vertically aligned with secondThing? 
+                verticallyAligned = ((firstTop >= secondTop && firstTop <= secondBottom) || (firstBottom <= secondBottom && firstBottom >= secondTop));
+            }
+
+            return horizontallyAligned && verticallyAligned;
+        }
+
+
+
+        //a helper which checks whether a column contains an alien.  If an alien is detected, the func returns
+        //the position of that alien.  If no alien is in the column, it returns -1.
+        //Full details in alienFireTimer_Tick.
+        private int checkAlienInColumn(PictureBox[,] array, int firingColumn)
+        {
+            for (int i = array.GetLength(0) - 1; i >= 0; i--)
+            {
+                if (array[firingColumn, i].Visible)
+                {
+                    return i;
+                }
+            }
+            return -1;
+        }
+
+        #endregion
+
+        #region Fire Action Handling
+
+        //handle player fire action.
+        public void fire()
+        {
+            if (!bulletTimer.Enabled)
+            {
+                //set start position of bullet.
+                bullet.Left = (player.Left + player.Width / 2) - bullet.Width / 2;
+                bullet.Top = player.Top;
+                bullet.Visible = true;
+                bulletTimer.Enabled = true;
+                bulletsFired++;
+            }
+        }
+
+        private void alienFire(int column, int row)
+        {
+            PictureBox alienBullet = new System.Windows.Forms.PictureBox();
+            alienBullet.BackColor = Color.White;
+            alienBullet.Top = this.aliens[column, row].Top;
+            alienBullet.Left = this.aliens[column, row].Left + (this.aliens[column, row].Width / 2);
+            alienBullet.Width = 10;
+            alienBullet.Height = 10;
+            alienBullets.Add(alienBullet);
+            this.Controls.Add(alienBullet);
+        }
+
+        #endregion
+
     }
 }
