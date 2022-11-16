@@ -28,9 +28,12 @@ namespace Assignment1
         int bulletsFired = 0;
         int bulletsSuccessful = 0;
         int bulletsShotOutOfSky = 0;
+        int direction;
+
         Random r = new Random();
         List<PictureBox> alienBullets = new List<PictureBox>();
-        
+        PictureBox bonusDropperPlane = new System.Windows.Forms.PictureBox();
+
         //Declare alien sprites at the top of the program so that they can be loaded once only.
         Image[,] alienSprites = new Image[4, 2];
 
@@ -45,6 +48,12 @@ namespace Assignment1
         int alienBulletMoveAmt = 10;
         int damage = 20;
         int defenseBlockWidth = 200;
+        int alienSize = 50;
+        int alienSpacingX = 100;
+        int alienSpacingY = 70;
+        int bonusDropperPlaneMoveAmt = 20;
+        
+
         //-----------------
 
         #endregion
@@ -92,9 +101,9 @@ namespace Assignment1
                 for (int j = 0; j < aliens.GetLength(1); j++)
                 {
                     aliens[i, j] = new System.Windows.Forms.PictureBox();
-                    aliens[i, j].Location = new System.Drawing.Point((10 + i * 150), (10 + j * 80));
+                    aliens[i, j].Location = new System.Drawing.Point((10 + i * alienSpacingX), (10 + j * alienSpacingY));
                     aliens[i, j].Name = "alien " + i + "-" + j;
-                    aliens[i, j].Size = new System.Drawing.Size(70, 70);
+                    aliens[i, j].Size = new System.Drawing.Size(alienSize, alienSize);
                     aliens[i, j].Image = alienSprites[i, 1];
                     aliens[i, j].SizeMode = PictureBoxSizeMode.StretchImage;
                     this.Controls.Add(this.aliens[i, j]);
@@ -315,7 +324,7 @@ namespace Assignment1
 
 
 
-            //remove any spent bullets from the bullet
+            //remove any spent bullets from the screen
             for (int i = 0; i < bulletsToRemove.Count; i++)
             {
                 alienBullets[bulletsToRemove[i]].Visible = false;
@@ -363,20 +372,37 @@ namespace Assignment1
         //ups the intensity of the game every x seconds
         private void intensityTimer_Tick(object sender, EventArgs e)
         {
-            if (level == 1)
+            increaseIntensity(level);
+        }
+
+        //triggers the presence of the bonus dropper plane.
+        private void bonusTimer_Tick(object sender, EventArgs e)
+        {
+            //randomly generate the movement direction
+            direction = r.Next(0,2);
+            //0 = left -> right, 1 = right -> left
+            int xPosition = direction == 0 ? 0 : this.Width;
+
+            bonusDropperPlane.Location = new System.Drawing.Point((xPosition), (this.Height-400));
+            bonusDropperPlane.Name = "bonusDropperPlane";
+            bonusDropperPlane.Size = new System.Drawing.Size(alienSize, alienSize);
+            bonusDropperPlane.Image = direction == 0 ? Properties.Resources.aircraftspriterh : Properties.Resources.aircraftspritelh;
+            bonusDropperPlane.SizeMode = PictureBoxSizeMode.StretchImage;
+            this.Controls.Add(bonusDropperPlane);
+        }
+
+        private void bonusPlaneMoveTimer_Tick(object sender, EventArgs e)
+        {
+            if (bonusDropperPlane != null)
             {
-                alienBulletMoveAmt += 2;
-                alienMoveAmt += 2;
-            }
-            if (level == 2)
-            {
-                alienBulletMoveAmt += 3;
-                alienMoveAmt += 3;
-            }
-            if (level == 3)
-            {
-                alienBulletMoveAmt += 4;
-                alienMoveAmt += 4;
+                if (direction == 1)
+                {
+                    bonusDropperPlane.Left = bonusDropperPlane.Left - bonusDropperPlaneMoveAmt;
+                }
+                else
+                {
+                    bonusDropperPlane.Left = bonusDropperPlane.Left + bonusDropperPlaneMoveAmt;
+                }
             }
         }
 
@@ -419,8 +445,6 @@ namespace Assignment1
             bullet.Visible = false;
         }
 
-
-
         // a helper which checks whether two pictureBoxes are in contact with one another
         private bool twoThingsImpacted(PictureBox firstThing, PictureBox secondThing)
         {
@@ -454,8 +478,6 @@ namespace Assignment1
             return horizontallyAligned && verticallyAligned;
         }
 
-
-
         //a helper which checks whether a column contains an alien.  If an alien is detected, the func returns
         //the position of that alien.  If no alien is in the column, it returns -1.
         //Full details in alienFireTimer_Tick.
@@ -469,6 +491,14 @@ namespace Assignment1
                 }
             }
             return -1;
+        }
+
+        private void increaseIntensity(int difficulty)
+        {
+            int intensityModifier = difficulty * 5;
+            alienMoveTimer.Interval = alienMoveTimer.Interval += intensityModifier;
+            alienBulletMoveTimer.Interval = alienBulletMoveTimer.Interval += intensityModifier;
+            alienFireTimer.Interval = alienFireTimer.Interval += intensityModifier;
         }
 
         #endregion
@@ -504,4 +534,6 @@ namespace Assignment1
         #endregion
 
     }
+
+
 }

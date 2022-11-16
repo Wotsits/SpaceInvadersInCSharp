@@ -63,6 +63,26 @@ namespace Assignment1.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap aircraftspritelh {
+            get {
+                object obj = ResourceManager.GetObject("aircraftspritelh", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap aircraftspriterh {
+            get {
+                object obj = ResourceManager.GetObject("aircraftspriterh", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap alien0_0 {
             get {
                 object obj = ResourceManager.GetObject("alien0_0", resourceCulture);
@@ -136,6 +156,16 @@ namespace Assignment1.Properties {
         internal static System.Drawing.Bitmap alien3_1 {
             get {
                 object obj = ResourceManager.GetObject("alien3_1", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap parachutepackage {
+            get {
+                object obj = ResourceManager.GetObject("parachutepackage", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

@@ -35,6 +35,8 @@
             this.alienFireTimer = new System.Windows.Forms.Timer(this.components);
             this.alienBulletMoveTimer = new System.Windows.Forms.Timer(this.components);
             this.intensityTimer = new System.Windows.Forms.Timer(this.components);
+            this.bonusTimer = new System.Windows.Forms.Timer(this.components);
+            this.bonusPlaneMoveTimer = new System.Windows.Forms.Timer(this.components);
             ((System.ComponentModel.ISupportInitialize)(this.bullet)).BeginInit();
             this.SuspendLayout();
             // 
@@ -76,6 +78,18 @@
             this.intensityTimer.Interval = 10000;
             this.intensityTimer.Tick += new System.EventHandler(this.intensityTimer_Tick);
             // 
+            // bonusTimer
+            // 
+            this.bonusTimer.Enabled = true;
+            this.bonusTimer.Interval = 20000;
+            this.bonusTimer.Tick += new System.EventHandler(this.bonusTimer_Tick);
+            // 
+            // bonusPlaneMoveTimer
+            // 
+            this.bonusPlaneMoveTimer.Enabled = true;
+            this.bonusPlaneMoveTimer.Interval = 70;
+            this.bonusPlaneMoveTimer.Tick += new System.EventHandler(this.bonusPlaneMoveTimer_Tick);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
@@ -101,6 +115,8 @@
         private System.Windows.Forms.Timer alienFireTimer;
         private System.Windows.Forms.Timer alienBulletMoveTimer;
         private System.Windows.Forms.Timer intensityTimer;
+        private System.Windows.Forms.Timer bonusTimer;
+        private System.Windows.Forms.Timer bonusPlaneMoveTimer;
     }
 }
 

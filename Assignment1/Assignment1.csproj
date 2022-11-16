@@ -95,5 +95,11 @@
     <None Include="Resources\alien 1-1.jpg" />
     <None Include="Resources\Image1.bmp" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\parachutepackage.png" />
+    <None Include="Resources\aircraftspritesrh.png" />
+    <None Include="Resources\aircraftspritelh.png" />
+    <Content Include="Resources\aircraftspriterh.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
