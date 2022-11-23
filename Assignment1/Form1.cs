@@ -32,7 +32,9 @@ namespace Assignment1
 
         Random r = new Random();
         List<PictureBox> alienBullets = new List<PictureBox>();
-        PictureBox bonusDropperPlane = new System.Windows.Forms.PictureBox();
+
+
+        BonusDropper bonusDropperPlane = new BonusDropper();
 
         //Declare alien sprites at the top of the program so that they can be loaded once only.
         Image[,] alienSprites = new Image[4, 2];
@@ -52,7 +54,7 @@ namespace Assignment1
         int alienSpacingX = 100;
         int alienSpacingY = 70;
         int bonusDropperPlaneMoveAmt = 20;
-        
+        int bonusDropperFlightPath = -400;
 
         //-----------------
 
@@ -383,25 +385,49 @@ namespace Assignment1
             //0 = left -> right, 1 = right -> left
             int xPosition = direction == 0 ? 0 : this.Width;
 
-            bonusDropperPlane.Location = new System.Drawing.Point((xPosition), (this.Height-400));
-            bonusDropperPlane.Name = "bonusDropperPlane";
-            bonusDropperPlane.Size = new System.Drawing.Size(alienSize, alienSize);
-            bonusDropperPlane.Image = direction == 0 ? Properties.Resources.aircraftspriterh : Properties.Resources.aircraftspritelh;
-            bonusDropperPlane.SizeMode = PictureBoxSizeMode.StretchImage;
-            this.Controls.Add(bonusDropperPlane);
+            bonusDropperPlane.PictureBox = new PictureBox();
+            bonusDropperPlane.PictureBox.Location = new System.Drawing.Point((xPosition), (this.Height + bonusDropperFlightPath));
+            bonusDropperPlane.PictureBox.Name = "bonusDropperPlane";
+            bonusDropperPlane.PictureBox.Size = new System.Drawing.Size(alienSize, alienSize);
+            bonusDropperPlane.PictureBox.Image = direction == 0 ? Properties.Resources.aircraftspriterh : Properties.Resources.aircraftspritelh;
+            bonusDropperPlane.PictureBox.SizeMode = PictureBoxSizeMode.StretchImage;
+            bonusDropperPlane.DropTriggerX = r.Next(0, this.Width);
+            bonusDropperPlane.Dropped = false;
+            this.Controls.Add(bonusDropperPlane.PictureBox);
         }
 
         private void bonusPlaneMoveTimer_Tick(object sender, EventArgs e)
         {
-            if (bonusDropperPlane != null)
+            //if the bonusDropper has been added to the screen.
+            if (bonusDropperPlane.PictureBox != null)
             {
-                if (direction == 1)
+               
+                //if the package hasn't already been dropped, assess whether the package needs to be dropped.  
+                if (!bonusDropperPlane.Dropped)
                 {
-                    bonusDropperPlane.Left = bonusDropperPlane.Left - bonusDropperPlaneMoveAmt;
+                    if (bonusDropperPlane.PictureBox.Left <= bonusDropperPlane.DropTriggerX)
+                    {
+                        //calc the middle of the plane's position.
+                        int planeXPosition = bonusDropperPlane.PictureBox.Left + bonusDropperPlane.PictureBox.Width / 2;
+
+                        PictureBox bonusPackage = new PictureBox();
+                        bonusPackage.Location = new System.Drawing.Point(planeXPosition , (this.Height + bonusDropperFlightPath));
+                        bonusPackage.Name = "bonusDropperPlane";
+                        bonusPackage.Size = new System.Drawing.Size(alienSize, alienSize);
+                        bonusPackage.Image = direction == 0 ? Properties.Resources.aircraftspriterh : Properties.Resources.aircraftspritelh;
+                        bonusPackage.SizeMode = PictureBoxSizeMode.StretchImage;
+                        this.Controls.Add(bonusDropperPlane.PictureBox);
+                    }
                 }
+
+                //disearn the direction of it's travel and move the bonusDropper in the direction of travel.
+                if (direction == 1)
+                { 
+                    bonusDropperPlane.PictureBox.Left = bonusDropperPlane.PictureBox.Left - bonusDropperPlaneMoveAmt;
+                } 
                 else
                 {
-                    bonusDropperPlane.Left = bonusDropperPlane.Left + bonusDropperPlaneMoveAmt;
+                    bonusDropperPlane.PictureBox.Left = bonusDropperPlane.PictureBox.Left + bonusDropperPlaneMoveAmt;
                 }
             }
         }

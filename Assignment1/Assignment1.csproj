@@ -47,6 +47,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Alien.cs" />
+    <Compile Include="BonusDropper.cs" />
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>
     </Compile>
