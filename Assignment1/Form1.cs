@@ -57,6 +57,7 @@ namespace Assignment1
         int bonusDropperFlightPath = -400;
         int bonusPackageSize = 20;
         int bonusPackageMoveAmt = 10;
+        int alienDistanceFromTop = 100;
 
         //-----------------
 
@@ -105,7 +106,7 @@ namespace Assignment1
                 for (int j = 0; j < aliens.GetLength(1); j++)
                 {
                     aliens[i, j] = new System.Windows.Forms.PictureBox();
-                    aliens[i, j].Location = new System.Drawing.Point((10 + i * alienSpacingX), (10 + j * alienSpacingY));
+                    aliens[i, j].Location = new System.Drawing.Point((alienDistanceFromTop + i * alienSpacingX), (alienDistanceFromTop + j * alienSpacingY));
                     aliens[i, j].Name = "alien " + i + "-" + j;
                     aliens[i, j].Size = new System.Drawing.Size(alienSize, alienSize);
                     aliens[i, j].Image = alienSprites[i, 1];
