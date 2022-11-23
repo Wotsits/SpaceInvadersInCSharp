@@ -5,6 +5,7 @@ using System.Data;
 using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
+using System.Media;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -28,6 +29,7 @@ namespace Assignment1
         int bulletsFired = 0;
         int bulletsSuccessful = 0;
         int bulletsShotOutOfSky = 0;
+        int bonusesCollected = 0;
         int direction;
 
         Random r = new Random();
@@ -35,6 +37,7 @@ namespace Assignment1
 
         BonusDropper bonusDropperPlane = new BonusDropper();
         PictureBox bonusPackage = new PictureBox();
+        Label scoreDisplay = new Label();
 
         //Declare alien sprites at the top of the program so that they can be loaded once only.
         Image[,] alienSprites = new Image[4, 2];
@@ -58,6 +61,7 @@ namespace Assignment1
         int bonusPackageSize = 20;
         int bonusPackageMoveAmt = 10;
         int alienDistanceFromTop = 100;
+        string playerNameStr = "Player";
 
         //-----------------
 
@@ -72,6 +76,7 @@ namespace Assignment1
         //Game load flow
         private void Game_Load(object sender, EventArgs e)
         {
+            DrawTopBar();
             PopulateSpriteArray();
             DrawAliens();
             DrawDefenseBlocks();
@@ -143,6 +148,24 @@ namespace Assignment1
             this.Controls.Add(this.player);
         }
 
+        private void DrawTopBar()
+        {
+            Label playerName = new System.Windows.Forms.Label();
+            playerName.Text = playerNameStr;
+            playerName.Font = new Font("Arial", 20);
+            playerName.ForeColor = Color.White;
+            playerName.Location = new System.Drawing.Point(50, 25);
+            playerName.Size = new System.Drawing.Size(100, 50);
+            this.Controls.Add(playerName);
+
+            scoreDisplay.Text = score.ToString();
+            scoreDisplay.Font = new Font("Arial", 20);
+            scoreDisplay.ForeColor = Color.White;
+            scoreDisplay.Location = new System.Drawing.Point(this.Width - 100, 25);
+            scoreDisplay.Size = new System.Drawing.Size(100, 50);
+            this.Controls.Add(scoreDisplay);
+        }
+
         #endregion
 
         #endregion
@@ -151,35 +174,58 @@ namespace Assignment1
 
         private void alienMoveTimer_Tick(object sender, EventArgs e)
         {
-            if (directionOfAlienMove == "R")
+            //check whether there are any aliens left
+            bool aliensRemain = false;
+
+            for (int i = 0; i < 4; i++)
             {
-                for (int i = 0; i < 4; i++)
+                for (int j = 0; j < 4; j++)
                 {
-                    for (int j = 0; j < 4; j++)
-                    {
-                        this.aliens[i, j].Left = this.aliens[i, j].Left + alienMoveAmt;
-                    }
-                }
-            }
-            if (directionOfAlienMove == "L")
-            {
-                for (int i = 0; i < 4; i++)
-                {
-                    for (int j = 0; j < 4; j++)
-                    {
-                        this.aliens[i, j].Left = this.aliens[i, j].Left - alienMoveAmt;
-                    }
+                    if (this.aliens[i, j].Visible) aliensRemain = true;
+                    break;
                 }
             }
 
-            if (this.aliens[3, 0].Right > this.Width)
+            if (aliensRemain)
             {
-                directionOfAlienMove = "L";
-            }
-            else if (this.aliens[0, 0].Left <= 0)
+                if (directionOfAlienMove == "R")
+                {
+                    for (int i = 0; i < 4; i++)
+                    {
+                        for (int j = 0; j < 4; j++)
+                        {
+                            this.aliens[i, j].Left = this.aliens[i, j].Left + alienMoveAmt;
+                        }
+                    }
+                }
+            
+                if (directionOfAlienMove == "L")
+                {
+                    for (int i = 0; i < 4; i++)
+                    {
+                        for (int j = 0; j < 4; j++)
+                        {
+                            this.aliens[i, j].Left = this.aliens[i, j].Left - alienMoveAmt;
+                        }
+                    }
+                }
+
+                if (this.aliens[3, 0].Right > this.Width)
+                {
+                    directionOfAlienMove = "L";
+                }
+                else if (this.aliens[0, 0].Left <= 0)
+                {
+                    directionOfAlienMove = "R";
+                }
+            
+            } 
+            
+            else
             {
-                directionOfAlienMove = "R";
+                endGame();
             }
+            
         }
 
         public void bulletTimer_Tick(object sender, EventArgs e)
@@ -240,7 +286,8 @@ namespace Assignment1
                                     else
                                     {
                                         alien.Visible = false;
-                                        score++;
+                                        score = score + 10;
+                                        scoreDisplay.Text = score.ToString();
                                     }
                                 }
                             }
@@ -290,11 +337,7 @@ namespace Assignment1
                 if (twoThingsImpacted(alienBullets[i], player))
                 {
                     //End Game
-                    this.BackColor = Color.Red;
-                    alienMoveTimer.Enabled = false;
-                    bulletTimer.Enabled = false;
-                    alienFireTimer.Enabled = false;
-                    alienBulletMoveTimer.Enabled = false;
+                    endGame("NEGATIVE");
                 }
 
                 //check if they are in contact with the players bullet
@@ -311,7 +354,7 @@ namespace Assignment1
                 {
                     if (twoThingsImpacted(alienBullets[i], defenseBlocks[j]))
                     {
-                        if (defenseBlocks[i].Width > 10)
+                        if (defenseBlocks[j].Width > 10)
                         {
                             defenseBlocks[j].Width = defenseBlocks[j].Width - 10;
                             defenseBlocks[j].Left = defenseBlocks[j].Left + 5;
@@ -593,6 +636,226 @@ namespace Assignment1
 
         #endregion
 
+        #region Handle End Game
+
+        private void endGame(string outcome = "POSITIVE")
+        {
+
+            if (outcome == "NEGATIVE")
+            {
+                this.BackColor = Color.Red;
+            }
+
+            //----------------
+            //stop all timers
+
+            alienMoveTimer.Enabled = false;
+            bulletTimer.Enabled = false;
+            alienFireTimer.Enabled = false;
+            alienBulletMoveTimer.Enabled = false;
+            bonusTimer.Enabled = false;
+            bonusPlaneMoveTimer.Enabled = false;
+            packageDropTimer.Enabled = false;
+            
+            //----------------
+
+            //----------------
+            //hide all objects
+            
+            if (bonusPackage != null) bonusPackage.Hide();
+            if (bonusDropperPlane.PictureBox != null) bonusDropperPlane.PictureBox.Hide();
+            foreach (PictureBox bullet in alienBullets)
+            {
+                bullet.Hide();
+            }
+            foreach (PictureBox defenseBlock in defenseBlocks)
+            {
+                defenseBlock.Hide();
+            }
+            foreach (PictureBox alien in aliens)
+            {
+                alien.Hide();
+            }
+            player.Hide();
+            bullet.Hide();
+
+            //----------------
+
+            //----------------
+            //display summary
+
+            //build title label
+            Label summary = new System.Windows.Forms.Label();
+            if (outcome == "POSITIVE")
+            {
+                summary.Text = "You killed all of the aliens";
+            }
+            else
+            {
+                summary.Text = "You died!";
+            }
+            summary.Font = new Font("Arial", 36);
+            summary.ForeColor = Color.White;
+            summary.Location = new System.Drawing.Point((this.Width / 2) - summary.Width / 2, (this.Height / 8));
+            summary.AutoSize = true;
+
+            //calculate label positions for 
+            // - score sub total
+            // - alien bullets shot form sky
+            // - bonuses collected
+            // - defences remaining
+            // - clear round completion
+            // - time taken to clear the round
+            // - score total
+
+            int heightOfWindow = this.Height;
+            int heightOfSummaryBox = heightOfWindow / 2;
+            int[] yPositionOfItems = new int[7];
+            for (int i = 0; i < yPositionOfItems.Length; i++)
+            {
+                yPositionOfItems[i] = this.Height/4 + (heightOfSummaryBox / 6) * i;
+            }
+
+            //sadly C# doesn't allow naming of variables at runtime, else this could have been handled in a loop.
+
+            //build score breakdown labels
+            Label scoreSubTotalLabel = new System.Windows.Forms.Label();
+            scoreSubTotalLabel.Text = "Score SubTotal";
+            scoreSubTotalLabel.Font = new Font("Arial", 26);
+            scoreSubTotalLabel.ForeColor = Color.White;
+            scoreSubTotalLabel.Location = new System.Drawing.Point((this.Width / 4), yPositionOfItems[0]);
+            scoreSubTotalLabel.AutoSize = true;
+
+            Label alienBulletsShotLabel = new System.Windows.Forms.Label();
+            alienBulletsShotLabel.Text = "Alien Bullet Destroyer Bonus";
+            alienBulletsShotLabel.Font = new Font("Arial", 26);
+            alienBulletsShotLabel.ForeColor = Color.White;
+            alienBulletsShotLabel.Location = new System.Drawing.Point((this.Width / 4), yPositionOfItems[1]);
+            alienBulletsShotLabel.AutoSize = true;
+
+            Label bonusesCollectedLabel = new System.Windows.Forms.Label();
+            bonusesCollectedLabel.Text = "Parachute Savior Bonus";
+            bonusesCollectedLabel.Font = new Font("Arial", 26);
+            bonusesCollectedLabel.ForeColor = Color.White;
+            bonusesCollectedLabel.Location = new System.Drawing.Point((this.Width / 4), yPositionOfItems[2]);
+            bonusesCollectedLabel.AutoSize = true;
+
+            Label defencesRemainingLabel = new System.Windows.Forms.Label();
+            defencesRemainingLabel.Text = "Defence Block Protector Bonus";
+            defencesRemainingLabel.Font = new Font("Arial", 26);
+            defencesRemainingLabel.ForeColor = Color.White;
+            defencesRemainingLabel.Location = new System.Drawing.Point((this.Width / 4), yPositionOfItems[3]);
+            defencesRemainingLabel.AutoSize = true;
+
+            Label clearRoundCompletionLabel = new System.Windows.Forms.Label();
+            clearRoundCompletionLabel.Text = "Round Winner Bonus";
+            clearRoundCompletionLabel.Font = new Font("Arial", 26);
+            clearRoundCompletionLabel.ForeColor = Color.White;
+            clearRoundCompletionLabel.Location = new System.Drawing.Point((this.Width / 4), yPositionOfItems[4]);
+            clearRoundCompletionLabel.AutoSize = true;
+
+            Label roundTimeLabel = new System.Windows.Forms.Label();
+            roundTimeLabel.Text = "Speed Bonus";
+            roundTimeLabel.Font = new Font("Arial", 26);
+            roundTimeLabel.ForeColor = Color.White;
+            roundTimeLabel.Location = new System.Drawing.Point((this.Width / 4), yPositionOfItems[5]);
+            roundTimeLabel.AutoSize = true;
+
+            Label scoreTotalLabel = new System.Windows.Forms.Label();
+            scoreTotalLabel.Text = "Total Score";
+            scoreTotalLabel.Font = new Font("Arial", 26);
+            scoreTotalLabel.ForeColor = Color.White;
+            scoreTotalLabel.Location = new System.Drawing.Point((this.Width / 4), yPositionOfItems[6]);
+            scoreTotalLabel.AutoSize = true;
+
+            this.Controls.Add(summary); 
+            this.Controls.Add(scoreSubTotalLabel);
+            this.Controls.Add(alienBulletsShotLabel);
+            this.Controls.Add(bonusesCollectedLabel);
+            this.Controls.Add(defencesRemainingLabel);
+            this.Controls.Add(clearRoundCompletionLabel);
+            this.Controls.Add(roundTimeLabel);
+            this.Controls.Add(scoreTotalLabel);
+
+            //calc score
+            int alienBulletsShotPoints = (bulletsShotOutOfSky * 100);
+            int bonusesCollectedPoints = (bonusesCollected * 100);
+            int defencesRemainingPoints = 0;
+            if (outcome == "POSITIVE")
+            {
+                foreach (PictureBox defence in defenseBlocks)
+                {
+                    defencesRemainingPoints = defencesRemainingPoints + defence.Width;
+                }
+            }
+            int clearRoundCompletionPoints = outcome == "POSITIVE" ? 500 : 0;
+            int roundTimePoints = 0;
+            if (outcome == "POSITIVE")
+            {
+                //add a bonus here which reflects how long it took.     
+            }
+            int scoreTotal = score + alienBulletsShotPoints + bonusesCollectedPoints + defencesRemainingPoints + clearRoundCompletionPoints + roundTimePoints;
+
+            //build score display labels. 
+            Label scoreSubTotalDisplay = new System.Windows.Forms.Label();
+            scoreSubTotalDisplay.Text = score.ToString();
+            scoreSubTotalDisplay.Font = new Font("Arial", 26);
+            scoreSubTotalDisplay.ForeColor = Color.White;
+            scoreSubTotalDisplay.Location = new System.Drawing.Point((this.Width / 4) * 3, yPositionOfItems[0]);
+            scoreSubTotalDisplay.AutoSize = true;
+
+            Label alienBulletsShotDisplay = new System.Windows.Forms.Label();
+            alienBulletsShotDisplay.Text = alienBulletsShotPoints.ToString();
+            alienBulletsShotDisplay.Font = new Font("Arial", 26);
+            alienBulletsShotDisplay.ForeColor = Color.White;
+            alienBulletsShotDisplay.Location = new System.Drawing.Point((this.Width / 4) * 3, yPositionOfItems[1]);
+            alienBulletsShotDisplay.AutoSize = true;
+
+            Label bonusesCollectedDisplay = new System.Windows.Forms.Label();
+            bonusesCollectedDisplay.Text = bonusesCollectedPoints.ToString();
+            bonusesCollectedDisplay.Font = new Font("Arial", 26);
+            bonusesCollectedDisplay.ForeColor = Color.White;
+            bonusesCollectedDisplay.Location = new System.Drawing.Point((this.Width / 4) * 3, yPositionOfItems[2]);
+            bonusesCollectedDisplay.AutoSize = true;
+
+            Label defencesRemainingDisplay = new System.Windows.Forms.Label();
+            defencesRemainingDisplay.Text = defencesRemainingPoints.ToString();
+            defencesRemainingDisplay.Font = new Font("Arial", 26);
+            defencesRemainingDisplay.ForeColor = Color.White;
+            defencesRemainingDisplay.Location = new System.Drawing.Point((this.Width / 4) * 3, yPositionOfItems[3]);
+            defencesRemainingDisplay.AutoSize = true;
+
+            Label clearRoundCompletionDisplay = new System.Windows.Forms.Label();
+            clearRoundCompletionDisplay.Text = clearRoundCompletionPoints.ToString();
+            clearRoundCompletionDisplay.Font = new Font("Arial", 26);
+            clearRoundCompletionDisplay.ForeColor = Color.White;
+            clearRoundCompletionDisplay.Location = new System.Drawing.Point((this.Width / 4) * 3, yPositionOfItems[4]);
+            clearRoundCompletionDisplay.AutoSize = true;
+
+            Label roundTimeDisplay = new System.Windows.Forms.Label();
+            roundTimeDisplay.Text = roundTimePoints.ToString();
+            roundTimeDisplay.Font = new Font("Arial", 26);
+            roundTimeDisplay.ForeColor = Color.White;
+            roundTimeDisplay.Location = new System.Drawing.Point((this.Width / 4) * 3, yPositionOfItems[5]);
+            roundTimeDisplay.AutoSize = true;
+
+            Label scoreTotalDisplay = new System.Windows.Forms.Label();
+            scoreTotalDisplay.Text = scoreTotal.ToString();
+            scoreTotalDisplay.Font = new Font("Arial", 26);
+            scoreTotalDisplay.ForeColor = Color.White;
+            scoreTotalDisplay.Location = new System.Drawing.Point((this.Width / 4) * 3, yPositionOfItems[6]);
+            scoreTotalDisplay.AutoSize = true;
+
+            this.Controls.Add(scoreSubTotalDisplay);
+            this.Controls.Add(alienBulletsShotDisplay);
+            this.Controls.Add(bonusesCollectedDisplay);
+            this.Controls.Add(defencesRemainingDisplay);
+            this.Controls.Add(clearRoundCompletionDisplay);
+            this.Controls.Add(roundTimeDisplay);
+            this.Controls.Add(scoreTotalDisplay);
+        }
+
+        #endregion
     }
 
 
