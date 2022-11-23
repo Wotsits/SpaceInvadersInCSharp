@@ -33,8 +33,8 @@ namespace Assignment1
         Random r = new Random();
         List<PictureBox> alienBullets = new List<PictureBox>();
 
-
         BonusDropper bonusDropperPlane = new BonusDropper();
+        PictureBox bonusPackage = new PictureBox();
 
         //Declare alien sprites at the top of the program so that they can be loaded once only.
         Image[,] alienSprites = new Image[4, 2];
@@ -55,6 +55,8 @@ namespace Assignment1
         int alienSpacingY = 70;
         int bonusDropperPlaneMoveAmt = 20;
         int bonusDropperFlightPath = -400;
+        int bonusPackageSize = 20;
+        int bonusPackageMoveAmt = 10;
 
         //-----------------
 
@@ -402,21 +404,27 @@ namespace Assignment1
             if (bonusDropperPlane.PictureBox != null)
             {
                
-                //if the package hasn't already been dropped, assess whether the package needs to be dropped.  
+                //if the package hasn't already been dropped, assess whether the plane has passed the trigger point.  
                 if (!bonusDropperPlane.Dropped)
                 {
-                    if (bonusDropperPlane.PictureBox.Left <= bonusDropperPlane.DropTriggerX)
+                    int bonusDropperPosition = bonusDropperPlane.PictureBox.Left;
+                    int dropTrigger = bonusDropperPlane.DropTriggerX;
+                    
+                    if ((direction == 1 && bonusDropperPosition <= dropTrigger) || (direction == 0 && bonusDropperPosition >= dropTrigger))
                     {
+                        //set the dropped flag
+                        bonusDropperPlane.Dropped = true;
+
                         //calc the middle of the plane's position.
                         int planeXPosition = bonusDropperPlane.PictureBox.Left + bonusDropperPlane.PictureBox.Width / 2;
 
-                        PictureBox bonusPackage = new PictureBox();
                         bonusPackage.Location = new System.Drawing.Point(planeXPosition , (this.Height + bonusDropperFlightPath));
-                        bonusPackage.Name = "bonusDropperPlane";
-                        bonusPackage.Size = new System.Drawing.Size(alienSize, alienSize);
-                        bonusPackage.Image = direction == 0 ? Properties.Resources.aircraftspriterh : Properties.Resources.aircraftspritelh;
+                        bonusPackage.Name = "bonusPackage";
+                        bonusPackage.Size = new System.Drawing.Size(bonusPackageSize, bonusPackageSize);
+                        bonusPackage.Image = Properties.Resources.parachutepackage;
                         bonusPackage.SizeMode = PictureBoxSizeMode.StretchImage;
-                        this.Controls.Add(bonusDropperPlane.PictureBox);
+                        this.Controls.Add(bonusPackage);
+                        packageDropTimer.Enabled = true;
                     }
                 }
 
@@ -428,6 +436,31 @@ namespace Assignment1
                 else
                 {
                     bonusDropperPlane.PictureBox.Left = bonusDropperPlane.PictureBox.Left + bonusDropperPlaneMoveAmt;
+                }
+            }
+        }
+
+        private void packageDropTimer_Tick (object sender, EventArgs e)
+        {
+            if (bonusPackage != null)
+            {
+                //move the package 
+                bonusPackage.Top = bonusPackage.Top + bonusPackageMoveAmt;
+
+                //check whether the package is in contact with the player
+                if (twoThingsImpacted(bonusPackage, player))
+                {
+                    //--------------------------
+                    //insert player upgrade here.
+                    //--------------------------
+                }
+
+                //if off screen, remove
+                if (bonusPackage.Top > this.Height)
+                {
+                    //remove package from screen
+                    packageDropTimer.Enabled = false;
+                    bonusPackage.Top = -100;
                 }
             }
         }

@@ -37,6 +37,7 @@
             this.intensityTimer = new System.Windows.Forms.Timer(this.components);
             this.bonusTimer = new System.Windows.Forms.Timer(this.components);
             this.bonusPlaneMoveTimer = new System.Windows.Forms.Timer(this.components);
+            this.packageDropTimer = new System.Windows.Forms.Timer(this.components);
             ((System.ComponentModel.ISupportInitialize)(this.bullet)).BeginInit();
             this.SuspendLayout();
             // 
@@ -90,6 +91,10 @@
             this.bonusPlaneMoveTimer.Interval = 70;
             this.bonusPlaneMoveTimer.Tick += new System.EventHandler(this.bonusPlaneMoveTimer_Tick);
             // 
+            // packageDropTimer
+            // 
+            this.packageDropTimer.Tick += new System.EventHandler(this.packageDropTimer_Tick);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
@@ -117,6 +122,7 @@
         private System.Windows.Forms.Timer intensityTimer;
         private System.Windows.Forms.Timer bonusTimer;
         private System.Windows.Forms.Timer bonusPlaneMoveTimer;
+        private System.Windows.Forms.Timer packageDropTimer;
     }
 }
 
